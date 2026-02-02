@@ -1,77 +1,87 @@
 "use client";
 
-import axios from "axios";
-import { toast } from "sonner";
-import { Room } from "@/types/index";
-import RoomCard from "utils/RoomCard";
-import { Button } from "@repo/ui/button";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import RoomCreationPopup from "@/modals/RoomCreationModal";
+import { toast } from "sonner";
+import { Button } from "@repo/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/card";
+import { RoomCard, RoomCreationModal } from "@/features/rooms";
+import type { Room, RoomListResponse, CreateRoomResponse } from "@repo/shared/types";
+
+async function fetchRooms(): Promise<Room[]> {
+  const response = await fetch("/api/rooms");
+  if (!response.ok) {
+    throw new Error("Failed to fetch rooms");
+  }
+  const data: RoomListResponse = await response.json();
+  return data.rooms;
+}
+
+async function createRoom(name: string): Promise<string> {
+  const response = await fetch("/api/rooms", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ roomName: name }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to create room");
+  }
+
+  const data: CreateRoomResponse = await response.json();
+  return data.id;
+}
 
 export default function JoinRoomPage() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showPopup, setShowPopup] = useState(false);
-  const [newRoomName, setNewRoomName] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    fetchRooms();
-  }, []);
-
-  const fetchRooms = async () => {
+  const loadRooms = useCallback(async () => {
     try {
       setIsLoading(true);
-      const { data } = await axios.get<{ rooms: Room[] }>("/api/rooms");
-      setRooms(data.rooms);
+      const data = await fetchRooms();
+      setRooms(data);
     } catch (error) {
       console.error("Error fetching rooms:", error);
       toast.error("Failed to fetch rooms. Please try again later.");
     } finally {
       setIsLoading(false);
     }
-  };
-  
-  const handleJoinRoom = (roomId: string) => {
-    router.push(`/canvas?roomid=${encodeURIComponent(roomId)}`);
-  };
+  }, []);
 
-  const handleCreateRoom = async () => {
-    if (!newRoomName.trim()) {
-      toast.error("Room name cannot be empty.");
-      return;
-    }
+  useEffect(() => {
+    loadRooms();
+  }, [loadRooms]);
 
+  const handleJoinRoom = useCallback(
+    (roomId: string) => {
+      router.push(`/canvas?roomid=${encodeURIComponent(roomId)}`);
+    },
+    [router]
+  );
+
+  const handleCreateRoom = useCallback(async (name: string) => {
     try {
-      const response = await fetch("/api/rooms", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roomName: newRoomName }),
-      });
+      setIsCreating(true);
+      const id = await createRoom(name);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const { id }: { id: string } = await response.json();
-      setRooms((prevRooms) => [
-        ...prevRooms,
-        {
-          id,
-          name: newRoomName,
-          createdAt: new Date().toISOString(),
-        },
+      setRooms((prev) => [
+        { id, name, createdAt: new Date() },
+        ...prev,
       ]);
+
       toast.success("Room created successfully!");
-      setShowPopup(false);
-      setNewRoomName("");
+      setShowModal(false);
     } catch (error) {
       console.error("Error creating room:", error);
       toast.error("Failed to create room. Please try again.");
+    } finally {
+      setIsCreating(false);
     }
-  };
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-900 text-white p-4">
@@ -85,7 +95,7 @@ export default function JoinRoomPage() {
         <CardContent className="p-6">
           {isLoading ? (
             <div className="flex justify-center items-center h-40">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400" />
             </div>
           ) : rooms.length === 0 ? (
             <div className="text-center py-8 text-zinc-400">
@@ -102,7 +112,7 @@ export default function JoinRoomPage() {
           <div className="mt-8 flex justify-center">
             <Button
               className="bg-yellow-200 hover:bg-yellow-300 text-zinc-900 font-medium px-6 py-3 rounded-lg transition-colors"
-              onClick={() => setShowPopup(true)}
+              onClick={() => setShowModal(true)}
             >
               Create New Room
             </Button>
@@ -110,17 +120,12 @@ export default function JoinRoomPage() {
         </CardContent>
       </Card>
 
-      {showPopup && (
-        <RoomCreationPopup
-          onCreate={handleCreateRoom}
-          onCancel={() => {
-            setShowPopup(false);
-            setNewRoomName("");
-          }}
-          newRoomName={newRoomName}
-          setNewRoomName={setNewRoomName}
-        />
-      )}
+      <RoomCreationModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onCreate={handleCreateRoom}
+        isLoading={isCreating}
+      />
     </div>
   );
 }

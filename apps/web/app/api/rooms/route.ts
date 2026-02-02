@@ -1,33 +1,35 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@repo/db/client";
+import { NextRequest } from "next/server";
+import { CreateRoomSchema } from "@repo/shared/schemas";
+import { roomService } from "@/lib/services";
+import { handleRoute, successResponse, validationErrorResponse } from "@/lib/api/response";
 
+/**
+ * GET /api/rooms
+ * Returns list of all available rooms.
+ */
 export async function GET() {
-  try {
-    const rooms = await prisma.room.findMany({
-      orderBy: { createdAt: "desc" },
-    });
-    return NextResponse.json({ rooms }, { status: 200 });
-  } catch (error) {
-    console.error("Error fetching rooms:", error);
-    return NextResponse.json({ error: "Failed to fetch rooms" }, { status: 500 });
-  }
+  return handleRoute(async () => {
+    const data = await roomService.listRooms();
+    return successResponse(data);
+  });
 }
 
+/**
+ * POST /api/rooms
+ * Creates a new room.
+ *
+ * Body: { roomName: string }
+ */
 export async function POST(req: NextRequest) {
-  try {
-    const { roomName } = await req.json();
+  return handleRoute(async () => {
+    const body = await req.json();
+    const result = CreateRoomSchema.safeParse(body);
 
-    if (!roomName || typeof roomName !== "string") {
-      return NextResponse.json({ error: "Invalid room name" }, { status: 400 });
+    if (!result.success) {
+      return validationErrorResponse(result.error);
     }
 
-    const newRoom = await prisma.room.create({
-      data: { name: roomName },
-    });
-
-    return NextResponse.json({ id: newRoom.id }, { status: 201 });
-  } catch (error) {
-    console.error("Error creating room:", error);
-    return NextResponse.json({ error: "Failed to create room" }, { status: 500 });
-  }
+    const data = await roomService.createRoom(result.data.roomName);
+    return successResponse(data, 201);
+  });
 }

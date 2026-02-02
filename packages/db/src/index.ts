@@ -1,15 +1,19 @@
-import { PrismaClient } from "@prisma/client";
+/**
+ * @repo/db - Database access layer for the Sketch monorepo
+ *
+ * This package provides:
+ * - Prisma client singleton
+ * - Repository pattern for type-safe database access
+ * - Clean separation between Prisma models and domain types
+ */
 
-const prismaClientSingleton = () => {
-  return new PrismaClient();
-};
+// Prisma client (for advanced use cases only)
+export { prisma } from "./client";
 
-declare const globalThis: {
-  prismaGlobal: ReturnType<typeof prismaClientSingleton>;
-} & typeof global;
+// Repository layer (preferred API)
+export { drawingRepository, roomRepository } from "./repositories";
+export type { RoomEntity } from "./repositories";
 
-const prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
-
-if (process.env.NODE_ENV !== "production") globalThis.prismaGlobal = prisma;
-
+// Legacy default export for backward compatibility
+import { prisma } from "./client";
 export default prisma;
