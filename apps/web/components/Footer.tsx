@@ -25,14 +25,14 @@ const Footer = () => {
 
         <div className="flex gap-6 text-[#ffffff]">
           <Link
-            href="https://github.com/0x4nud33p/sketch"
+            href="https://github.com/anudeepx/sketch"
             target="_blank"
             className="hover:text-slate-400 transition-colors"
           >
             <Github className="h-5 w-5" />
           </Link>
           <Link
-            href="https://twitter.com/0x4nud33p"
+            href="https://twitter.com/anudeepx9"
             target="_blank"
             className="hover:text-slate-400 transition-colors"
           >

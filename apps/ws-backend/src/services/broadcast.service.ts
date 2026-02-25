@@ -1,5 +1,5 @@
 import WebSocket from "ws";
-import type { ClientSocket, RoomState, RoomsMap } from "../types";
+import type { ClientSocket, RoomState, RoomsMap } from "../types/server.types";
 import type { ServerMessage } from "@repo/shared/types";
 
 /**

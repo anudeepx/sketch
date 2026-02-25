@@ -51,7 +51,7 @@
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/0x4nud33p/sketch.git
+   git clone https://github.com/anudeepx/sketch.git
    cd sketch
    ```
 
@@ -145,8 +145,8 @@ pnpm type-check       # Run TypeScript checks
 
 <div align="center">
 
-**[🌟 Star this repo](https://github.com/0x4nud33p/sketch)** • **[🍴 Fork it](https://github.com/0x4nud33p/sketch/fork)** • **[📱 Try the demo](https://sketch-pji1og6kj-anudeep-avulas-projects.vercel.app)**
+**[🌟 Star this repo](https://github.com/anudeepx/sketch)** • **[🍴 Fork it](https://github.com/anudeepx/sketch/fork)** • **[📱 Try the demo](https://sketch-pji1og6kj-anudeep-avulas-projects.vercel.app)**
 
-Made with ❤️ by [Anudeep Avula](https://github.com/0x4nud33p)
+Made with ❤️ by [Anudeep Avula](https://github.com/anudeepx)
 
 </div>

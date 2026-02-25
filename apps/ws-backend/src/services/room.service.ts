@@ -1,4 +1,4 @@
-import type { ClientSocket, RoomState, RoomsMap } from "../types";
+import { ClientSocket, RoomState, RoomsMap } from "../types/server.types";
 import { BroadcastService } from "./broadcast.service";
 import { drawingRepository } from "@repo/db/repositories";
 import { WebSocketMessageType } from "@repo/shared/schemas";

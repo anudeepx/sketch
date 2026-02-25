@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
-import { createServer } from "http";
-import type { RoomsMap } from "./types";
+import { createServer } from "http";;
+import type { RoomsMap } from "./types/server.types";
 import { BroadcastService, RoomService } from "./services";
 import { ConnectionHandler } from "./handlers";
 import { drawingRepository } from "@repo/db/repositories";

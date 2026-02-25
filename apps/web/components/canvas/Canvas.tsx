@@ -35,6 +35,8 @@ const Canvas = () => {
         break;
       case "drawing":
         if (data.drawingData) {
+          console.log("Received drawing data:", data.drawingData);
+          console.log("data log:", data);
           setDrawings(prev => [...prev, data.drawingData]);
         }
         break;

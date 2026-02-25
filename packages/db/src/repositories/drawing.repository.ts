@@ -28,7 +28,7 @@ export const drawingRepository = {
                 type: data.type,
                 color: data.color,
                 size: data.size ?? 2,
-                points: data.points ?? null,
+                points: data.points ?? undefined,
                 startX: data.startX ?? null,
                 startY: data.startY ?? null,
                 width: data.width ?? null,
@@ -65,7 +65,7 @@ export const drawingRepository = {
         } catch {
             return false;
         }
-    },
+    }
 };
 
 /**

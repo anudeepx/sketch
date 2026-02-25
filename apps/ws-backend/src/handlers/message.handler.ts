@@ -1,4 +1,4 @@
-import type { ClientSocket } from "../types";
+import type { ClientSocket } from "../types/server.types";
 import { RoomService } from "../services/room.service";
 import { BroadcastService } from "../services/broadcast.service";
 import { drawingRepository } from "@repo/db/repositories";

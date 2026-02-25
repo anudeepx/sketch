@@ -1,12 +1,12 @@
 import WebSocket, { WebSocketServer } from "ws";
 import type { Server } from "http";
-import type { ClientSocket, RoomsMap } from "../types";
 import { RoomService } from "../services/room.service";
 import { BroadcastService } from "../services/broadcast.service";
 import { MessageHandler } from "./message.handler";
 import { WebSocketMessageType } from "@repo/shared/schemas";
 import { generateClientId } from "../utils/id";
 import { SERVER_CONFIG } from "../config";
+import type { RoomsMap, ClientSocket } from "../types/server.types";
 
 /**
  * Handles WebSocket connection lifecycle.
