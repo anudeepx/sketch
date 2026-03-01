@@ -1,80 +1,42 @@
+version: "3.9"
+
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: sketch-postgres
-    restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-sketch}
-      POSTGRES_USER: ${POSTGRES_USER:-sketch}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sketch}
+      POSTGRES_DB: sketch
+      POSTGRES_USER: sketch
+      POSTGRES_PASSWORD: sketch
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sketch} -d ${POSTGRES_DB:-sketch}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
     ports:
       - "5432:5432"
-    networks:
-      - app-network
 
   ws-backend:
     build:
       context: .
       dockerfile: apps/ws-backend/Dockerfile
-    container_name: sketch-ws-backend
-    restart: unless-stopped
     environment:
       NODE_ENV: production
       PORT: 8080
-      DATABASE_URL: postgresql://${POSTGRES_USER:-sketch}:${POSTGRES_PASSWORD:-sketch}@postgres:5432/${POSTGRES_DB:-sketch}?schema=public
+      DATABASE_URL: postgresql://sketch:sketch@postgres:5432/sketch
     depends_on:
-      postgres:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080 >/dev/null || exit 1"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 20s
+      - postgres
     ports:
       - "8080:8080"
-    networks:
-      - app-network
 
   web:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
-    container_name: sketch-web
-    restart: unless-stopped
     environment:
       NODE_ENV: production
       PORT: 3000
-      HOSTNAME: 0.0.0.0
-      NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-ws://ws-backend:8080}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-sketch}:${POSTGRES_PASSWORD:-sketch}@postgres:5432/${POSTGRES_DB:-sketch}?schema=public
+      NEXT_PUBLIC_WS_URL: ws://ws-backend:8080
     depends_on:
-      postgres:
-        condition: service_healthy
-      ws-backend:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000 >/dev/null || exit 1"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 20s
+      - ws-backend
     ports:
       - "3000:3000"
-    networks:
-      - app-network
 
 volumes:
   postgres_data:
-
-networks:
-  app-network:
-    driver: bridge
